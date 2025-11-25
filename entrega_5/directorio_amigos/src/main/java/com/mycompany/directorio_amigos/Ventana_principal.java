@@ -71,7 +71,11 @@ public class Ventana_principal extends javax.swing.JFrame {
         });
 
         boton_actualizar.setText("Actualizar");
-
+        boton_actualizar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                boton_actualizarActionPerformed(evt);
+            }
+        });
         boton_borrar.setText("Borrar");
 
         area_mensajes.setColumns(20);
@@ -327,7 +331,94 @@ public class Ventana_principal extends javax.swing.JFrame {
     }//GEN-LAST:event_boton_limpiarNumeroActionPerformed
 
 
-    private 
+    private void boton_actualizarActionPerformed(java.awt.event.ActionEvent evt) {                                              
+        // leer y validar campos de la interfaz
+        String nombreIngresado = campo_nombre.getText();
+        String numeroIngresado = campo_numero.getText();
+        if (nombreIngresado.isEmpty() || numeroIngresado.isEmpty()) {
+            JOptionPane.showMessageDialog(this,"Para actualizar debe ingresar NOMBRE y el NUEVO NÚMERO.");
+            area_mensajes.append("\nError: Para actualizar debe ingresar nombre y nuevo número.\n");
+            return;
+        }
+
+        if (!numeroIngresado.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this,"El número debe contener solo dígitos.");
+            area_mensajes.append("\nError: El número debe contener solo dígitos.\n");
+            return;
+        }
+
+        try{
+            long nuevoNumero = Long.parseLong(numeroIngresado);
+            File archivo = new File("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt");
+            if (!archivo.exists()) {
+                JOptionPane.showMessageDialog(this,"El archivo de directorio no existe.");
+                area_mensajes.append("\nError: El archivo de directorio no existe.\n");
+                return;
+            }
+            RandomAccessFile raf = new RandomAccessFile(archivo, "rw");
+            boolean encontrado = false;
+            long posicionAnterior = 0;
+            raf.seek(0);
+            while (raf.getFilePointer() < raf.length()) {
+                String linea = raf.readLine();
+                
+                
+                if (linea == null || linea.trim().isEmpty()) {
+                    continue 
+                }
+                String[] partes = linea.split("!");
+                if (partes.length < 2) {
+                    continue;
+                }
+                String nombre = partes[0];
+                String numeroViejo = partes[1];
+
+                if (nombre.equals(nombreIngresado)) {
+                    linea = nombre + "!"+ numero_string
+                    encontrado = true;
+                }
+                tmpraf.writeBytes(linea);
+                tmpraf.writeBytes(System.lineSeparator());
+            }
+
+            tmpraf.seek(0);
+            raf.setLength(0);
+            raf.seek(0);
+
+            while(tmpraf.getFilePointer() < tmpraf.length()) {
+                String linea = tmpraf.readLine();
+                if (linea != null){
+                    raf.writeBytes(linea);
+                    raf.writeBytes(System.lineSeparator());
+                }
+              
+            }
+        
+            tmpraf.close();
+            raf.close();
+            tmpFile.delete();
+
+            if (encontrado){
+                JOptionPane.showMessageDialog(this,"Número actualizado correctamente.");
+                area_mensajes.append("\nNúmero actualizado correctamente.\n");
+            } else {
+                JOptionPane.showMessageDialog(this,"Amigo no encontrado en el directorio.");
+                area_mensajes.append("\nAmigo no encontrado en el directorio.\n");
+            }
+    
+
+
+        } 
+        catch (IOException ioe){
+            JOptionPane.showMessageDialog(this,"Ha ocurrido un error al acceder al archivo.");
+            area_mensajes.append("\nError: Ha ocurrido un error al acceder al archivo.\n");
+        } 
+        catch (NumberFormatException nfe){
+            JOptionPane.showMessageDialog(this,"Ha ocurrido un error con el formato del número.");
+            area_mensajes.append("\nError: Ha ocurrido un error con el formato del número.\n");
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
