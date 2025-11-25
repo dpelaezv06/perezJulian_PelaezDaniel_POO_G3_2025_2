@@ -18,11 +18,17 @@ public class Ventana_principal extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Ventana_principal.class.getName());
 
+    private static final String RUTA_ARCHIVO =
+        "entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt";
+
+    private final FriendRepository repositorio;
+
     /**
      * Creates new form Ventana_principal
      */
     public Ventana_principal() {
         initComponents();
+        repositorio = new FriendRepository(RUTA_ARCHIVO);
     }
 
     /**
@@ -191,362 +197,202 @@ public class Ventana_principal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void boton_crearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_crearActionPerformed
-        // TODO add your handling code here:
-        /* accion realizada cuando se pulsa el boton crear */
-
-        try {
-            String nombre_igresado = campo_nombre.getText(); // se obtiene el nombre ingresado en el campo de texto
-            long numero_ingresado = Long.parseLong(campo_numero.getText()); // se obiene el numero ingresado en el campo de texto correspondiente y se convierta a long
-            String numero_string = campo_numero.getText();
-            String nombre;
-            long numero;
-            boolean encontrado = false;
-            String linea;
-
-
-            File archivo = new File("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt"); // se crea un objeto File con la ruta del archivo
-            if (archivo.exists() == false){
-                /* si el archivo no existe, entonces lo crea */
-                archivo.createNewFile();
-            }
-            RandomAccessFile raf = new RandomAccessFile(archivo, "rw");
-
-
-            if (nombre_igresado.isEmpty() || campo_numero.getText().isEmpty()){
-                /* si alguno de los campos esta vacio */
-                JOptionPane.showMessageDialog(null, "Por favor complete ambos campos antes de agregar un amigo al directorio."); // se muestra un mensaje de error
-                raf.close(); // se cierra el archivo
-                area_mensajes.append("\nError: Por favor complete ambos campos antes de agregar un amigo al directorio.\n"); // se pide al usuario completar ambos campos
-            }else{
-                /* si ambos campos estan llenos, se procede a agregar el nuevo amigo */
-                
-                /* se recorre el archivo para verificar si el nuevo nombre existe o no existe */
-                while (raf.getFilePointer() < raf.length()) {
-                    linea = raf.readLine(); // se lee una linea del archivo
-                    String [] registro = linea.split("!"); // see separa la linea en nombre y numero con el caracter clave '!'
-
-                    nombre = registro[0]; // se obtiene el nombre del registro actual 
-                    numero = Long.parseLong(registro[1]); // se obriene el numero del registro actual
-                    
-                    if (nombre.equals(nombre_igresado) || numero == numero_ingresado){
-                        encontrado = true;
-                        JOptionPane.showMessageDialog(null, "El nombre o el número ya existen en el directorio."); // se muestra un mensaje de error
-                        raf.close(); // se cierra el archivo
-                        area_mensajes.append("\nEl nombre o el número ya existen, por favor modifique la entrada.\n"); // se pide al usuario modificar la entrada
-                        break;
-                    }
-                
-                }
-                if (encontrado == false){
-                    raf.writeBytes(nombre_igresado + "!" + numero_string); // se escribe el nuevo registro en el archivo
-                    raf.writeBytes(System.lineSeparator()); // se escribe un salto de linea
-                    JOptionPane.showMessageDialog(null, "Amigo agregado al directorio correctamente."); // se muestra un mensaje de confirmacion
-                    raf.close(); // se cierra el archivo
-                    campo_nombre.setText(""); // se limpia el campo de texto del nombre
-                    campo_numero.setText(""); // se limpia el campo de texto del numero
-                    area_mensajes.append("\nAmigo agregado al directorio correctamente.\n"); // se muestra el mensaje en el area de mensajes
-                    area_mensajes.append("Nombre: " + nombre_igresado + ", Número: " + numero_string + "\n"); // se muestra el contacto agregado
-                }
-
-            }
-        }catch (IOException ioe){
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error abriendo o creando el archivo.");
-        }catch (NumberFormatException nfe){
-            JOptionPane.showMessageDialog(null, "Ha ocurrido un error con el formato del número.");
-        }      
-    }//GEN-LAST:event_boton_crearActionPerformed
-
-    private void boton_limpiarMensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarMensajesActionPerformed
-        // TODO add your handling code here:
-        area_mensajes.setText("");        
-        
-        
-    }//GEN-LAST:event_boton_limpiarMensajesActionPerformed
-
-    private void boton_actualizarActionPerformed(java.awt.event.ActionEvent evt) {                                             
-    // 1) Leer y validar campos de la interfaz
     String nombreIngresado = campo_nombre.getText().trim();
-    String numeroIngresado = campo_numero.getText().trim();
+    String numeroTexto = campo_numero.getText().trim();
 
-    if (nombreIngresado.isEmpty() || numeroIngresado.isEmpty()) {
+    if (nombreIngresado.isEmpty() || numeroTexto.isEmpty()) {
         JOptionPane.showMessageDialog(this,
-                "Para actualizar debe ingresar NOMBRE y el NUEVO NÚMERO.");
-        area_mensajes.append("\nError: Para actualizar debe ingresar nombre y nuevo número.\n");
+                "Por favor complete ambos campos antes de agregar un amigo al directorio.");
+        area_mensajes.append("\nError: campos vacíos.\n");
         return;
     }
 
-    if (!numeroIngresado.matches("\\d+")) {
+    if (!numeroTexto.matches("\\d+")) {
         JOptionPane.showMessageDialog(this,
                 "El número debe contener solo dígitos.");
-        area_mensajes.append("\nError: El número debe contener solo dígitos.\n");
+        area_mensajes.append("\nError: el número debe contener solo dígitos.\n");
         return;
     }
 
     try {
-        long nuevoNumero = Long.parseLong(numeroIngresado);
+        long numero = Long.parseLong(numeroTexto);
+        Friend nuevo = new Friend(nombreIngresado, numero);
 
-        File archivo = new File("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt");
-        archivo = new File(archivo.getAbsolutePath());
+        boolean agregado = repositorio.agregar(nuevo);
 
-        if (!archivo.exists()) {
+        if (agregado) {
             JOptionPane.showMessageDialog(this,
-                    "El archivo de directorio no existe.");
-            area_mensajes.append("\nError: El archivo de directorio no existe.\n");
-            return;
-        }
-
-        RandomAccessFile raf = new RandomAccessFile(archivo, "rw");
-
-        // Archivo temporal en la misma carpeta
-        File tmpFile = new File(archivo.getParent(), "temp_directorio.txt");
-        RandomAccessFile tmpraf = new RandomAccessFile(tmpFile, "rw");
-
-        boolean encontrado = false;
-
-        // 2) Recorrer el archivo original línea por línea
-        raf.seek(0);
-        while (raf.getFilePointer() < raf.length()) {
-            String linea = raf.readLine();
-
-            if (linea == null || linea.trim().isEmpty()) {
-                continue;
-            }
-
-            String[] partes = linea.split("!");
-            if (partes.length < 2) {
-                // Línea mal formada: la copiamos tal cual
-                tmpraf.writeBytes(linea);
-                tmpraf.writeBytes(System.lineSeparator());
-                continue;
-            }
-
-            String nombre = partes[0];
-            String numeroViejo = partes[1];
-
-            // Si este es el amigo a actualizar, cambiamos el número
-            if (nombre.equals(nombreIngresado)) {
-                linea = nombre + "!" + numeroIngresado;
-                encontrado = true;
-            }
-
-            // Escribimos la línea (original o actualizada) en el temporal
-            tmpraf.writeBytes(linea);
-            tmpraf.writeBytes(System.lineSeparator());
-        }
-
-        // 3) Copiar de vuelta del temporal al archivo original
-        tmpraf.seek(0);
-        raf.setLength(0); // vaciamos el archivo original
-        raf.seek(0);
-
-        while (tmpraf.getFilePointer() < tmpraf.length()) {
-            String linea = tmpraf.readLine();
-            if (linea != null) {
-                raf.writeBytes(linea);
-                raf.writeBytes(System.lineSeparator());
-            }
-        }
-
-        tmpraf.close();
-        raf.close();
-        tmpFile.delete();
-
-        if (encontrado) {
-            JOptionPane.showMessageDialog(this, "Número actualizado correctamente.");
-            area_mensajes.append("\nNúmero actualizado correctamente para: "
-                                 + nombreIngresado + " -> " + numeroIngresado + "\n");
+                    "Amigo agregado al directorio correctamente.");
+            area_mensajes.append("\n" + nuevo + " agregado correctamente.\n");
+            campo_nombre.setText("");
+            campo_numero.setText("");
         } else {
-            JOptionPane.showMessageDialog(this, "Amigo no encontrado en el directorio.");
-            area_mensajes.append("\nAmigo no encontrado en el directorio.\n");
+            JOptionPane.showMessageDialog(this,
+                    "El nombre o el número ya existen en el directorio.");
+            area_mensajes.append("\nError: el nombre o el número ya existen en el directorio.\n");
         }
 
     } catch (IOException ioe) {
         JOptionPane.showMessageDialog(this,
                 "Ha ocurrido un error al acceder al archivo.");
-        area_mensajes.append("\nError: Ha ocurrido un error al acceder al archivo.\n");
+        area_mensajes.append("\nError: al acceder al archivo.\n");
     } catch (NumberFormatException nfe) {
         JOptionPane.showMessageDialog(this,
                 "Ha ocurrido un error con el formato del número.");
-        area_mensajes.append("\nError: Ha ocurrido un error con el formato del número.\n");
+        area_mensajes.append("\nError: formato de número inválido.\n");
     }
-    } 
+    }//GEN-LAST:event_boton_crearActionPerformed
 
-    private void boton_borrarActionPerformed(java.awt.event.ActionEvent evt) {                                             
-    String nombreIngresado = campo_nombre.getText().trim();
-    String numeroIngresado = campo_numero.getText().trim();
 
-    // Regla: o nombre SOLO, o número SOLO
-    if ((nombreIngresado.isEmpty() && numeroIngresado.isEmpty()) ||
-        (!nombreIngresado.isEmpty() && !numeroIngresado.isEmpty())) {
+    private void boton_limpiarMensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarMensajesActionPerformed
+        area_mensajes.setText("");        
+    }//GEN-LAST:event_boton_limpiarMensajesActionPerformed
 
-        JOptionPane.showMessageDialog(this,"Para borrar por nombre ingrese solo el nombre,\n" + "para borrar por número ingrese solo el número.");
-        area_mensajes.append("\nError: Para borrar use solo un campo (nombre o número).\n");
-        return;
-    }
+    private void boton_actualizarActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        String nombreIngresado = campo_nombre.getText().trim();
+        String numeroTexto = campo_numero.getText().trim();
 
-    // Si se va a borrar por número, validar que sean solo dígitos
-    if (!numeroIngresado.isEmpty() && !numeroIngresado.matches("\\d+")) {
-        JOptionPane.showMessageDialog(this,
-                "El número debe contener solo dígitos.");
-        area_mensajes.append("\nError: El número debe contener solo dígitos.\n");
-        return;
-    }
-
-    try {
-        File archivo = new File("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt");
-        archivo = new File(archivo.getAbsolutePath());
-
-        if (!archivo.exists()) {
+        if (nombreIngresado.isEmpty() || numeroTexto.isEmpty()) {
             JOptionPane.showMessageDialog(this,
-                    "El archivo del directorio no existe. No hay nada que borrar.");
-            area_mensajes.append("\nError: El archivo del directorio no existe.\n");
+                    "Para actualizar debe ingresar NOMBRE y el NUEVO NÚMERO.");
+            area_mensajes.append("\nError: faltan campos.\n");
             return;
         }
 
-        RandomAccessFile raf = new RandomAccessFile(archivo, "rw");
+        if (!numeroTexto.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this,
+                    "El número debe contener solo dígitos.");
+            area_mensajes.append("\nError: el número debe contener solo dígitos.\n");
+            return;
+        }
 
-        // Archivo temporal en la misma carpeta
-        File tmpFile = new File(archivo.getParent(), "temp_directorio.txt");
-        RandomAccessFile tmpraf = new RandomAccessFile(tmpFile, "rw");
+        try {
+            long nuevoNumero = Long.parseLong(numeroTexto);
+            boolean actualizado = repositorio.actualizarNumero(nombreIngresado, nuevoNumero);
 
-        boolean encontrado = false;
-
-        raf.seek(0);
-        while (raf.getFilePointer() < raf.length()) {
-            String linea = raf.readLine();
-
-            if (linea == null || linea.trim().isEmpty()) {
-                continue;
+            if (actualizado) {
+                JOptionPane.showMessageDialog(this, "Número actualizado correctamente.");
+                area_mensajes.append("\nNúmero actualizado para " + nombreIngresado +
+                                     " -> " + nuevoNumero + "\n");
+            } else {
+                JOptionPane.showMessageDialog(this, "Amigo no encontrado en el directorio.");
+                area_mensajes.append("\nAmigo no encontrado.\n");
             }
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error al acceder al archivo.");
+            area_mensajes.append("\nError: al acceder al archivo.\n");
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error con el formato del número.");
+            area_mensajes.append("\nError: formato de número inválido.\n");
+        }
+    } 
 
-            String[] partes = linea.split("!");
-            if (partes.length < 2) {
-                // Línea mal formada, la copiamos tal cual
-                tmpraf.writeBytes(linea);
-                tmpraf.writeBytes(System.lineSeparator());
-                continue;
-            }
+    private void boton_borrarActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        String nombreIngresado = campo_nombre.getText().trim();
+        String numeroTexto = campo_numero.getText().trim();
 
-            String nombre = partes[0];
-            String numero = partes[1];
+        if ((nombreIngresado.isEmpty() && numeroTexto.isEmpty()) ||
+            (!nombreIngresado.isEmpty() && !numeroTexto.isEmpty())) {
 
-            boolean esRegistroABorrar = false;
+            JOptionPane.showMessageDialog(this,"Para borrar por nombre ingrese solo el nombre,\n" + "para borrar por número ingrese solo el número.");
+            area_mensajes.append("\nError: Para borrar use solo un campo (nombre o número).\n");
+            return;
+        }
+
+        if (!numeroTexto.isEmpty() && !numeroTexto.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this,
+                    "El número debe contener solo dígitos.");
+            area_mensajes.append("\nError: El número debe contener solo dígitos.\n");
+            return;
+        }
+
+        try {
+            boolean borrado;
 
             if (!nombreIngresado.isEmpty()) {
-                // Borrado por nombre
-                esRegistroABorrar = nombre.equals(nombreIngresado);
+                borrado = repositorio.borrarPorNombre(nombreIngresado);
             } else {
-                // Borrado por número
-                esRegistroABorrar = numero.equals(numeroIngresado);
+                long numero = Long.parseLong(numeroTexto);
+                borrado = repositorio.borrarPorNumero(numero);
             }
 
-            if (esRegistroABorrar) {
-                encontrado = true;
-                // NO escribimos esta línea en el temporal → la borramos
-                continue;
+            if (borrado) {
+                JOptionPane.showMessageDialog(this, "Contacto borrado del directorio.");
+                area_mensajes.append("\nContacto borrado del directorio.\n");
+            } else {
+                JOptionPane.showMessageDialog(this, "Amigo no encontrado en el directorio.");
+                area_mensajes.append("\nAmigo no encontrado en el directorio.\n");
             }
 
-            // Si no se borra, se copia al temporal
-            tmpraf.writeBytes(linea);
-            tmpraf.writeBytes(System.lineSeparator());
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error al acceder al archivo.");
+            area_mensajes.append("\nError: Ha ocurrido un error al acceder al archivo.\n");
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error con el formato del número.");
+            area_mensajes.append("\nError: Ha ocurrido un error con el formato del número.\n");
         }
-
-        // Copiar del temporal al original
-        tmpraf.seek(0);
-        raf.setLength(0);
-        raf.seek(0);
-
-        while (tmpraf.getFilePointer() < tmpraf.length()) {
-            String linea = tmpraf.readLine();
-            if (linea != null) {
-                raf.writeBytes(linea);
-                raf.writeBytes(System.lineSeparator());
-            }
-        }
-
-        tmpraf.close();
-        raf.close();
-        tmpFile.delete();
-
-        if (encontrado) {
-            JOptionPane.showMessageDialog(this, "Contacto borrado del directorio.");
-            area_mensajes.append("\nContacto borrado del directorio.\n");
-        } else {
-            JOptionPane.showMessageDialog(this, "Amigo no encontrado en el directorio.");
-            area_mensajes.append("\nAmigo no encontrado en el directorio.\n");
-        }
-
-    } catch (IOException ioe) {
-        JOptionPane.showMessageDialog(this,
-                "Ha ocurrido un error al acceder al archivo.");
-        area_mensajes.append("\nError: Ha ocurrido un error al acceder al archivo.\n");
     }
-}
 
     private void boton_limpiarCeldasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarCeldasActionPerformed
-        // TODO add your handling code here:
-        campo_nombre.setText(""); // se borra lo que haya en nombre
-        campo_numero.setText(""); // se borra lo que haya en numero
+        campo_nombre.setText("");
+        campo_numero.setText("");
     }//GEN-LAST:event_boton_limpiarCeldasActionPerformed
 
     private void boton_leerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_leerActionPerformed
-        // TODO add your handling code here:
+        String nombreIngresado = campo_nombre.getText().trim();
+        String numeroTexto = campo_numero.getText().trim();
+
+        if (!(nombreIngresado.isEmpty() ^ numeroTexto.isEmpty())) {
+            JOptionPane.showMessageDialog(this,
+                    "Para buscar por nombre ingrese solo el nombre, para buscar por número ingrese solo el número.");
+            return;
+        }
+
         try {
-            String nombre;
-            String nombre_ingresado = campo_nombre.getText();
-            String numero_ingresado = campo_numero.getText();
-            String numero_string;
-            String linea;
-            boolean encontrado = false;
+            Friend encontrado = null;
 
-            File archivo = new File ("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt"); // se crea un objeto File con la ruta del archivo
-
-            if (archivo.exists() == false){
-                /* si el archivo no existe, entonces lo crea */
-                archivo.createNewFile();
+            if (!nombreIngresado.isEmpty()) {
+                encontrado = repositorio.buscarPorNombre(nombreIngresado);
+            } else {
+                if (!numeroTexto.matches("\\d+")) {
+                    JOptionPane.showMessageDialog(this,
+                            "El número debe contener solo dígitos.");
+                    area_mensajes.append("\nError: el número debe contener solo dígitos.\n");
+                    return;
+                }
+                long numero = Long.parseLong(numeroTexto);
+                encontrado = repositorio.buscarPorNumero(numero);
             }
 
-            if (!(nombre_ingresado.isEmpty() ^ numero_ingresado.isEmpty())){
-                /* si ambos campos estan llenos o vacios */
-                JOptionPane.showMessageDialog(null, "Para buscar por nombre ingrese solo el nombre, para buscar por número ingrese solo el número.");
-            }else{
-                RandomAccessFile raf = new RandomAccessFile(archivo, "r");
-                while (raf.getFilePointer() < raf.length()) {
-                    linea = raf.readLine(); // se lee una linea del archivo
-                    String [] registro = linea.split("!"); // see separa la linea en nombre y numero con el caracter clave '!'
-                    nombre = registro[0]; // se obtiene el nombre del registro actual 
-                    numero_string = registro[1]; // se obriene el string del numero del registro actual
-
-                    if (nombre.equals(nombre_ingresado) || numero_string.equals(numero_ingresado)){ // si se encuentra el nombre o el numero
-                        encontrado = true; // se marca como encontrado
-                        JOptionPane.showMessageDialog(null, "Amigo encontrado en el directorio."); // se muestra un mensaje de confirmacion
-                        area_mensajes.append("\nAmigo encontrado en el directorio.\n"); // se muestra el mensaje en el area de mensajes
-                        area_mensajes.append("Nombre: " + nombre + ", Número: " + numero_string + "\n"); // se muestra el contacto encontrado
-                        raf.close(); // se cierra el archivo
-                        break; // se sale del ciclo porque ya se encontro el amigo
-                    }
-                    
-                }
-                if (encontrado == false){
-                    JOptionPane.showMessageDialog(null, "Amigo no encontrado en el directorio."); // se muestra un mensaje de error
-                    area_mensajes.append("\nAmigo no encontrado en el directorio.\n"); // se muestra el mensaje en el area de mensajes
-                    raf.close(); // se cierra el archivo
-                }
-
+            if (encontrado != null) {
+                JOptionPane.showMessageDialog(this, "Amigo encontrado en el directorio.");
+                area_mensajes.append("\nAmigo encontrado en el directorio.\n");
+                area_mensajes.append(encontrado.toString() + "\n");
+            } else {
+                JOptionPane.showMessageDialog(this, "Amigo no encontrado en el directorio.");
+                area_mensajes.append("\nAmigo no encontrado en el directorio.\n");
             }
-        }catch (Exception e){
 
+        } catch (IOException ioe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error al acceder al archivo.");
+            area_mensajes.append("\nError: al acceder al archivo.\n");
+        } catch (NumberFormatException nfe) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha ocurrido un error con el formato del número.");
+            area_mensajes.append("\nError: formato de número inválido.\n");
         } 
-        
     }//GEN-LAST:event_boton_leerActionPerformed
 
     private void boton_limpiarNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarNombreActionPerformed
-        // TODO add your handling code here:
         campo_nombre.setText("");
     }//GEN-LAST:event_boton_limpiarNombreActionPerformed
 
     private void boton_limpiarNumeroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarNumeroActionPerformed
-        // TODO add your handling code here:
         campo_numero.setText("");
     }//GEN-LAST:event_boton_limpiarNumeroActionPerformed
 
@@ -554,11 +400,6 @@ public class Ventana_principal extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -569,9 +410,7 @@ public class Ventana_principal extends javax.swing.JFrame {
         } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
             logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
 
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> new Ventana_principal().setVisible(true));
     }
 
