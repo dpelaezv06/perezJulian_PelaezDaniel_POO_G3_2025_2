@@ -295,6 +295,11 @@ public class Ventana_principal extends javax.swing.JFrame {
                     }
                     
                 }
+                if (encontrado == false){
+                    JOptionPane.showMessageDialog(null, "Amigo no encontrado en el directorio."); // se muestra un mensaje de error
+                    area_mensajes.append("\nAmigo no encontrado en el directorio.\n"); // se muestra el mensaje en el area de mensajes
+                    raf.close(); // se cierra el archivo
+                }
 
             }
 
