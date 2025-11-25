@@ -371,7 +371,7 @@ public class Ventana_principal extends javax.swing.JFrame {
     }
     } 
 
-private void boton_borrarActionPerformed(java.awt.event.ActionEvent evt) {                                             
+    private void boton_borrarActionPerformed(java.awt.event.ActionEvent evt) {                                             
     String nombreIngresado = campo_nombre.getText().trim();
     String numeroIngresado = campo_numero.getText().trim();
 
@@ -482,7 +482,6 @@ private void boton_borrarActionPerformed(java.awt.event.ActionEvent evt) {
         area_mensajes.append("\nError: Ha ocurrido un error al acceder al archivo.\n");
     }
 }
-
 
     private void boton_limpiarCeldasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_boton_limpiarCeldasActionPerformed
         // TODO add your handling code here:
