@@ -193,7 +193,10 @@ public class Ventana_principal extends javax.swing.JFrame {
 
 
             File archivo = new File("entrega_5/directorio_amigos/src/main/java/com/mycompany/directorio_amigos/files/archivo_directorio.txt"); // se crea un objeto File con la ruta del archivo
+            archivo = new File (archivo.getAbsolutePath());
             if (archivo.exists() == false){
+                System.out.println(archivo);
+                System.out.println("El archivo no existe, se creará uno nuevo.");
                 /* si el archivo no existe, entonces lo crea */
                 archivo.createNewFile();
             }
@@ -204,7 +207,7 @@ public class Ventana_principal extends javax.swing.JFrame {
                 /* si alguno de los campos esta vacio */
                 JOptionPane.showMessageDialog(null, "Por favor complete ambos campos antes de agregar un amigo al directorio."); // se muestra un mensaje de error
                 raf.close(); // se cierra el archivo
-                area_mensajes.append("\nError: Por favor complete ambos campos antes de agregar un amigo al directorio.\n"); // se pide al usuario completar ambos campos
+                area_mensajes.append("/nError: Por favor complete ambos campos antes de agregar un amigo al directorio./n"); // se pide al usuario completar ambos campos
             }else{
                 /* si ambos campos estan llenos, se procede a agregar el nuevo amigo */
                 
@@ -220,7 +223,7 @@ public class Ventana_principal extends javax.swing.JFrame {
                         encontrado = true;
                         JOptionPane.showMessageDialog(null, "El nombre o el número ya existen en el directorio."); // se muestra un mensaje de error
                         raf.close(); // se cierra el archivo
-                        area_mensajes.append("\nEl nombre o el número ya existen, por favor modifique la entrada.\n"); // se pide al usuario modificar la entrada
+                        area_mensajes.append("/nEl nombre o el número ya existen, por favor modifique la entrada./n"); // se pide al usuario modificar la entrada
                         break;
                     }
                 
@@ -232,8 +235,8 @@ public class Ventana_principal extends javax.swing.JFrame {
                     raf.close(); // se cierra el archivo
                     campo_nombre.setText(""); // se limpia el campo de texto del nombre
                     campo_numero.setText(""); // se limpia el campo de texto del numero
-                    area_mensajes.append("\nAmigo agregado al directorio correctamente.\n"); // se muestra el mensaje en el area de mensajes
-                    area_mensajes.append("Nombre: " + nombre_igresado + ", Número: " + numero_string + "\n"); // se muestra el contacto agregado
+                    area_mensajes.append("/nAmigo agregado al directorio correctamente./n"); // se muestra el mensaje en el area de mensajes
+                    area_mensajes.append("Nombre: " + nombre_igresado + ", Número: " + numero_string + "/n"); // se muestra el contacto agregado
                 }
 
             }
@@ -272,6 +275,7 @@ public class Ventana_principal extends javax.swing.JFrame {
             if (archivo.exists() == false){
                 /* si el archivo no existe, entonces lo crea */
                 archivo.createNewFile();
+                
             }
 
             if (!(nombre_ingresado.isEmpty() ^ numero_ingresado.isEmpty())){
@@ -288,8 +292,8 @@ public class Ventana_principal extends javax.swing.JFrame {
                     if (nombre.equals(nombre_ingresado) || numero_string.equals(numero_ingresado)){ // si se encuentra el nombre o el numero
                         encontrado = true; // se marca como encontrado
                         JOptionPane.showMessageDialog(null, "Amigo encontrado en el directorio."); // se muestra un mensaje de confirmacion
-                        area_mensajes.append("\nAmigo encontrado en el directorio.\n"); // se muestra el mensaje en el area de mensajes
-                        area_mensajes.append("Nombre: " + nombre + ", Número: " + numero_string + "\n"); // se muestra el contacto encontrado
+                        area_mensajes.append("/nAmigo encontrado en el directorio./n"); // se muestra el mensaje en el area de mensajes
+                        area_mensajes.append("Nombre: " + nombre + ", Número: " + numero_string + "/n"); // se muestra el contacto encontrado
                         raf.close(); // se cierra el archivo
                         break; // se sale del ciclo porque ya se encontro el amigo
                     }
@@ -297,7 +301,7 @@ public class Ventana_principal extends javax.swing.JFrame {
                 }
                 if (encontrado == false){
                     JOptionPane.showMessageDialog(null, "Amigo no encontrado en el directorio."); // se muestra un mensaje de error
-                    area_mensajes.append("\nAmigo no encontrado en el directorio.\n"); // se muestra el mensaje en el area de mensajes
+                    area_mensajes.append("/nAmigo no encontrado en el directorio./n"); // se muestra el mensaje en el area de mensajes
                     raf.close(); // se cierra el archivo
                 }
 
@@ -322,6 +326,8 @@ public class Ventana_principal extends javax.swing.JFrame {
         campo_numero.setText("");
     }//GEN-LAST:event_boton_limpiarNumeroActionPerformed
 
+
+    private 
     /**
      * @param args the command line arguments
      */
